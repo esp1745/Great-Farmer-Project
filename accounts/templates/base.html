@@ -1,0 +1,40 @@
+{%load static%}
+
+{% block content %}
+
+<h> welcome please</h>
+
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-sm-12">
+        <div class="white-box">
+            <div class="d-md-flex mb-3">
+                <h3 class="box-title mb-0">Products recents added</h3>
+            </div>
+            <div class="table-responsive">
+                <a class="btn btn-primary btn-sm btn-block" href="{% url 'addproducts'%}">Add Product</a>
+                <table class="table table-sm">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Price in kwacha</th>
+                        <th>Update</th>
+                        <th>Remove</th>
+                    </tr> 
+
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{price}}</td>
+                        <td><a class="btn btn-sm btn-info" href="{% url 'update' %}">Update</a></td>
+                        <td><a class="btn btn-sm btn-danger" href="{% url 'delete' %}">Delete</a></td>
+    
+                    </tr>
+                    
+    
+            
+                </table>
+            </div>
+        </div>
+    </div>
+</div> 
+
+{% endblock %}
