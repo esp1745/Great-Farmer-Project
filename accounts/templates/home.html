@@ -47,18 +47,13 @@
 <body>
     {% load static %}
    
-    <!-- ============================================================== -->
-    <!-- Preloader - style you can find in spinners.css -->
-    <!-- ============================================================== -->
     <div class="preloader">
         <div class="lds-ripple">
             <div class="lds-pos"></div>
             <div class="lds-pos"></div>
         </div>
     </div>
-    <!-- ============================================================== -->
-    <!-- Main wrapper - style you can find in pages.scss -->
-    <!-- ============================================================== -->
+  
     <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full"
         data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
         <!-- ============================================================== -->
@@ -71,9 +66,9 @@
                     <!-- Logo -->
                     <!-- ============================================================== -->
                     <a class="navbar-brand" href="dashboard.html">
-                        <!-- Logo icon 
+                        <!-- Logo icon--> 
                         <p class="logo-icon">
-                            <img src="{% static 'logo.png'%}" alt="homepage" style="height:100px; width:100px;" />
+                            <img src="{% static 'side.png'%}" alt="homepage" style="height:50px; width:110px; margin-left: 30px;" />
                         </p>
                         <!--End Logo icon -->
                         <!-- Logo text -->
@@ -129,13 +124,7 @@
                                 <span class="hide-menu">Dashboard</span>
                             </a>
                         </li>
-                        {% comment %} <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="profile.html"
-                                aria-expanded="false">
-                                <i class="fa fa-user" aria-hidden="true"></i>
-                                <span class="hide-menu">Profile</span>
-                            </a>
-                        </li> {% endcomment %}
+                        
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'product'%}"
                                 aria-expanded="false">
@@ -145,7 +134,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href=""
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'connection'%}"
                                 aria-expanded="false">
                                 {% comment %} <i class="fa fa-font" aria-hidden="true"></i> {% endcomment %}
                                 <span class="hide-menu">Connections</span>
@@ -158,6 +147,7 @@
                                 <span class="hide-menu">Posts</span>
                             </a>
                         </li>
+                        
                         
                     </ul>
 
@@ -175,13 +165,13 @@
                         {% if user.is_authenticated %}
                         <p class= "msg" style="color: black;">Welcome, {{request.user}}</p>
                         {% endif %}
-                        {% comment %} <h4 class="page-title"></h4> {% endcomment %}
+                        
                     </div>
                     <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
                         <div class="d-md-flex">
                             <ol class="breadcrumb ms-auto">
                                 {% if user.is_customer %}
-                                <li><a href="#" class="btn btn-primary btn-sm btn-info">view farmers</a></li>
+                                <li><a href="{% url 'postpage'%}" class="btn btn-success">view Farmer Posts</a></li>
                                 {% endif %}
                             </ol>
                         </div>
@@ -224,8 +214,8 @@
                             <h3 class="box-title">Connections</h3>
                             <ul class="list-inline two-part d-flex align-items-center mb-0">
                                 <li>
-                                    <div id="sparklinedash3"><canvas width="67" height="30"
-                                            style="display: inline-block; width: 67px; height: 30px; vertical-align: top;"></canvas>
+                                    <div id="sparklinedash3"><canvas width="50" height="30"
+                                            style="display: inline-block; width: 50px; height: 30px; vertical-align: top;"></canvas>
                                     </div>
                                 </li>
                                 <li class="ms-auto"><span class="counter text-info">{{ post|length}}</span>
@@ -234,12 +224,11 @@
                         </div>
                     </div>
                 </div>
-            {% block content %}
                 <div class="row">
                     <div class="col-md-12 col-lg-12 col-sm-12">
                         <div class="white-box rounded">
                             <div class="d-md-flex mb-3">
-                                <h3 class="box-title mb-0">Top produdts</h3>
+                                <h3 class="box-title mb-0">Top products</h3>
                             </div>
                             <div class="table-responsive">
                                 {% comment %} <div> 
@@ -308,20 +297,20 @@
                     </div>
                 </div> 
                 
-            {% endblock %} 
+            
 
-            <div class="row">
+            {% comment %} <div class="row">
                 <div class="col-md-12 col-lg-12 col-sm-12">
                     <div class="white-box rounded">
                         <div class="d-md-flex mb-3">
                             <h3 class="box-title mb-0">Top Posts</h3>
                         </div>
-                        <div class="table-responsive">
+                        <div class="table-responsive"> {% endcomment %}
                             {% comment %} <div> 
                                 {% if user.is_farmer%}
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductsModal" data-bs-whatever="@mdo">Add Product</button>
                                 {% endif %}
-                            </div><br> {% endcomment %}
+                            </div><br> 
                             
                             <div class="modal fade" id="addProductsModal" tabindex="-1" aria-labelledby="addProductsModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -351,12 +340,12 @@
                                 </div>
                             </div> 
                         </div>
-                    </div>
-                            <table class="table table-sm">
+                    </div> {% endcomment %}
+                    {% comment %} <table class="table table-sm">
                                 <tr>
                                     <th>Title</th>
                                     <th>Description</th>
-                                    <th>price</th>
+                                    <th>price in kwacha</th>
                                     <th>product Name</th>
                                     <th>Farmer Name</th>
                             
@@ -371,7 +360,74 @@
                                     <td>{{Post.price}}</td> 
                                     <td>{{Post.product}}</td>
                                     <td>{{Post.farmer}}</td>
-                                    {% comment %} <td><a class="btn btn-sm btn-info" href="{% url 'famer'%}">Rate Farmer</a></td>  {% endcomment %}
+                                    {% comment %} <td><a class="btn btn-sm btn-info" href="{% url 'famer'%}">Rate Farmer</a></td>  
+                                </tr> 
+                                {% endfor %}
+                
+                        
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+            {%if user.is_customer%}
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="white-box">
+                        <div class="d-md-flex mb-3">
+                            <h3 class="box-title mb-0">Farmers</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <div> 
+                                {% comment %} {% if user.is_farmer%}
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductsModal" data-bs-whatever="@mdo">Add Post</button>
+                                {% endif %} {% endcomment %}
+                            </div><br>
+                            
+                            <div class="modal fade" id="ratingsModal" tabindex="-1" aria-labelledby="addProductsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addProductsModalLabel">Rate this farmer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="">
+                                        {% csrf_token %}
+            
+                                    <div class="mb-3">
+                                            <label for="recipient-name" class="col-form-label">Rating</label>
+                                            {{form.rating}}
+                                            {% comment %} <input type="number" class="form-control" id="recipient-name" value=""> {% endcomment %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                    </form>
+                                </div>
+                                
+                                </div>
+                            </div>
+                            </div>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Farmer Nmae</th>
+                                    <th>Email</th>
+                                    <th>Phone number</th>
+                                    <th>Rate Farmer</th>
+                                    <th>Connect to Farmer</th>
+                                
+                    
+                                </tr>
+               
+                                {% for Farmer in farm  %}
+                                <tr>
+                                    <td>{{Farmer.user.username}}</td>
+                                    <td>{{Farmer.user.email}}</td>
+                                    <td>{{Farmer.user.phone_number}}</td>
+                                    <td><a class="btn btn-sm btn-success" href="{% url 'farmer' Farmer.id %}">Rate</a></td>
+                                    <td><a class="btn btn-sm btn-success" href="{% url 'connect' Farmer.id %}">Connect</a></td>
                                 </tr> 
                                 {% endfor %}
                 
@@ -381,6 +437,7 @@
                     </div>
                 </div>
             </div> 
+            {%endif%}
     
         </div>
 

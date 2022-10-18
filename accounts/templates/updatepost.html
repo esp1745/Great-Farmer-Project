@@ -1,0 +1,96 @@
+
+{%extends 'base.html' %}
+
+{%load static%}
+
+{% block content%}
+
+<div class="d-flex justice-content-center" >
+    <div class="card w-50">
+        <div class="card-body">
+        <h5 class="card-title">Update Post</h5>
+            <form method="POST" class="post-form" action="">  
+            {%csrf_token%}
+            <input type="text" class=" mb-3 form-control" name='product_name' id="id_id" value="{{pos.title}}"/>
+            <input type="text" class="mb-3 form-control" name='price' id="id_id" value="{{pos.description}}"/>
+            <input type="price" class="mb-3 form-control" name='price' id="id_id" value="{{pos.price}}"/>
+            <input type="text" class="mb-3 form-control" name='product' id="id_id" value="{{pos.product}}"/>
+            <input type="text" class="mb-3 form-control" name='farmer' id="id_id" value="{{pos.farmer}}"/>
+            <div>
+                <button type="submit" class="btn btn-outline-success">Update</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{%endblock%}
+
+
+
+
+
+{% comment %} {%load static%}
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+
+        {% block content%} 
+
+
+        <form method="POST" class="post-form" action="">
+        {%csrf_token%}
+        <div class="container">
+            <div class="form-group row">
+                <label class="col-sm-1 col-form-label"></label>
+                <div class="col-sm-4">
+                    <h3>Update Post</h3>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Title:</label><br>
+                <div class="col-sm-4"><br>
+                    
+                    <input type="text" class="form-control" name='title' id="id_id" value="{{pos.title}}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Description:</label><br>
+                <div class="col-sm-4"><br>
+                   
+                    <input type="text" class="form-control" name='description' id="id_id" value="{{pos.description}}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Price:</label><br>
+                <div class="col-sm-4"><br>
+                    
+                    <input type="text" class="form-control" name='price' id="id_id" value="{{pos.price}}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Product Name:</label><br>
+                <div class="col-sm-4"><br>
+                     
+                    <input type="text" class="form-control" name='product' id="id_id" value="{{pos.product}}"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Farmer Name:</label><br>
+                <div class="col-sm-4"><br>
+                   
+                    <input type="price" class="form-control" name='farmer' id="id_id" value="{{pos.farmer}}"/>
+                </div>
+            </div>
+            <br>
+        <div class="btn">
+            <input class="btn btn-success" type="submit" name="submit">
+        </div>
+        </div>
+        
+        {%endblock%}
+</body> {% endcomment %}

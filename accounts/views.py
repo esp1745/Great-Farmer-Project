@@ -5,8 +5,8 @@ from unicodedata import name
 from urllib import request
 from django.shortcuts import render, redirect
 from django.views.generic import  CreateView
-from .models import Connection, Post, User 
-from .form import FarmerSignUpForm, CustomerSignUpForm, MapForm, productsForm,RateForm,PostForm,MapForm
+from .models import Connection, Post, User, RATE_CHOICE 
+from .form import FarmerSignUpForm, CustomerSignUpForm, MapFormCustomer, MapFormFarmer,productsForm,PostForm, RateForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
 from .models import Product,Customer,Farmer
@@ -16,17 +16,23 @@ from django.contrib.auth.decorators import login_required
 from .decorators import unauthenticated_user, allowed_users, admin_only
 from django.contrib.auth.models import Group
 from django.conf import settings
+from django.http import JsonResponse
+from django.db.models import QuerySet as Q
 
 import pandas as pd
 import numpy as np
-# from kmodes.kmodes import KModes
+from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+import sklearn.cluster as cluster
 import pymysql
 from sqlalchemy import create_engine
+import seaborn as sns
 import requests
 import googlemaps
+from sklearn.feature_extraction.text import TfidfVectorizer
 import json
+import threading
 from django.conf import settings
 
 
@@ -34,6 +40,8 @@ from django.conf import settings
 def register(request):
     return render(request, '../templates/register.html')
 
+def base(request):
+    return render(request, '../templates/base.html')
 
 
 # @unauthenticated_user
@@ -41,35 +49,34 @@ def register(request):
 
 def farmer_register(request):
     form = FarmerSignUpForm()   
-    # if request.method =='POST':
-    #     far = request.POST.get('farmer')
-    #     cus = request.POST.get('customer')
-    #     user = None
-    #     if far:
-    #         user = user.objects.get(user=user, is_farmer=True)
-    #     elif cus:
-    #         user = user.objects.get(user=user, is_customer=True)
-    #     # user=form.save()
-    form= FarmerSignUpForm(request.POST)
+    if request.method == 'POST':
+        form= FarmerSignUpForm(request.POST)
         
-    if form.is_valid():
+        
+        if form.is_valid():
+            usernam = form.cleaned_data.get('username') 
+            password = form.cleaned_data.get('password1') 
+            
             instance=form.save(commit=False)
-            instance.user=request.user
+            instance.user = request.user
             instance.save()
             user = form.save()
+            
+            new_user = authenticate(username=usernam, password=password)
+            if new_user is not None:
+                login(request, new_user)
+            
             user.is_farmer = True
-            # Farmer.objects.create(user=user, user_id=form.cleaned_data.get('user_id'))
+            Farmer.objects.create(user=user)
             username = form.cleaned_data.get('username')
             group= Group.objects.get(name='Farmer')
             
             user.groups.add(group)
             messages.success(request,'Account created' ''+ username)
-            return redirect('loginpage')
+            return redirect('maps_farmer')
     context={'form':form}
     return render(request, '../templates/farmer_register.html', context)
-    
-        
-        
+           
 # @unauthenticated_user
 # @allowed_users(allowed_roles=['customer'])
 def customer_register(request):
@@ -79,23 +86,29 @@ def customer_register(request):
      if request.method =='POST':
          form= CustomerSignUpForm(request.POST)
          if form.is_valid():
+            usernam = form.cleaned_data.get('username') 
+            password = form.cleaned_data.get('password1') 
+            
             instance=form.save(commit=False)
             instance.user=request.user
             instance.save()
             user = form.save()
+            
+            new_user = authenticate(username=usernam, password=password)
+            if new_user is not None:
+                login(request, new_user)
+            
             user.is_customer = True
-            #  Customer.objects.create(user=user,phone_number=form.cleaned_data.get('type'))
+            Customer.objects.create(user=user,customer_type=form.cleaned_data.get('customer_type'))
             
             username = form.cleaned_data.get('username')
             group = Group.objects.get(name='Customer')
             
             user.groups.add(group)
             messages.success(request,'Account created' ''+ username)
-            return redirect('loginpage')
+            return redirect('maps_customer')
      context={'form':form}
      return render(request, '../templates/customer_register.html', context)
-
-
 
 # @allowed_users(allowed_roles=['farmer', 'customer'])
 def loginpage(request):
@@ -120,62 +133,34 @@ def loginpage(request):
     context={}
     return render(request, '../templates/login.html', context)
 
-
-    
-
-
 def home(request):
     list = Product.objects.all()
     pos=Post.objects.all() 
     post=Connection.objects.all()
-    context={'list':list,'post':post,'pos':pos}
+    farm=Farmer.objects.all()
+    context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'home.html', context )
     
-
-    
-
 def logoutUser(request):
     logout(request)
     return redirect('loginpage')
 
-def geocode(request):
-
-    URL = "https://maps.googleapis.com/maps/api/geocode/json"
-  
-    location = "university of zambia"
-    
-    GOOGLE_API_KEY='AIzaSyChfcK6kfbgrOH9B5zXEokJGKz4FO8qC2g'
-  
-    PARAMS = {'address':location, 'key':GOOGLE_API_KEY}
-    r = requests.get(url = URL, params = PARAMS)
-
-    data = r.json()
-
-  
-    latitude = data['results'][0]['geometry']['location']['lat']
-    longitude = data['results'][0]['geometry']['location']['lng']
-    formatted_address = data['results'][0]['formatted_address']
-
-    print("Latitude:%s\nLongitude:%s\nFormatted Address:%s"%(latitude, longitude,formatted_address))
-   
-    return render(request,'geocode.html')
-
-def farmer(request):
+def farmer(request,id):
     form=RateForm()
-    # user=User.objects.get()
-    user=request.user
+    rate=Farmer.objects.get(pk=id)
     if request.method == 'POST':
-        form = RateForm(request.POST)
+        # take care of instance
+        form = RateForm(request.POST, instance=rate)
         if form.is_valid():
-            rate = form.save(commit = False)
-            rate.user =request.user
+            rate = form.save(commit=False)
+        # adding the user here.
+            rate.user = request.user
             rate.save()
-    context={'form':form, 'user':user}       
-    return render(request,'farmer.html',context)
- 
-
+            return redirect('home')
+    context={'form':form,'rate':rate}
+    return render(request, 'farmer.html', context)
+         
 ## adding a product
-
 # @allowed_users(allowed_roles=['Farmer'])
 def product(request):
     list = Product.objects.all()
@@ -184,30 +169,30 @@ def product(request):
         form = productsForm(request.POST)
     
     if form.is_valid():
-        
+        current_user = request.user
+        farmer = Farmer.objects.get(user = current_user)
         instance=form.save(commit=False)
-        instance.user=request.user
         instance.save()
-        
+        instance.farmer.add(farmer)
         return redirect('product')     
     context = {'form':form, 'list':list}
     return render(request, 'product.html',context)
 
-
-
 @allowed_users(allowed_roles=['Farmer'])
 def updatepage(request, id):
-    list = Product.objects.get(id=id)
-    pos = Post.objects.get(id=id)
-    form = productsForm(request.POST, instance= list)
+    list = Product.objects.get(pk=id)
+    form = productsForm(request.POST or None, instance= list)
     if form.is_valid():
         form.save()
-        return redirect('home')
-    context={'list':list,'pos':pos}
-    return render(request, "update.html", context,)
-  
+        return redirect('product')
+    context={'list':list,'form':form}
+    return render(request, "update.html", context)
+@allowed_users(allowed_roles=['Farmer'])  
+def deleteProduct(request, product_id):
+    list = Product.objects.get(pk=product_id)
+    list.delete()
+    return redirect('product')
 
- 
 @allowed_users(allowed_roles=['Farmer'])
 def deletepage(request, id):
     list = Product.objects.get(id=id)
@@ -216,7 +201,7 @@ def deletepage(request, id):
     
     context= {'list':list,'pos':pos}
     return render(request, 'delete.html',context)
-   
+#post section
 def post(request):
     pos = Post.objects.all()
     form = PostForm()
@@ -226,77 +211,104 @@ def post(request):
     if form.is_valid():
         
         instance=form.save(commit=False)
-        instance.user=request.user
+        instance.farmer=request.user
         instance.save()
         
         return redirect('post')     
     context = {'form':form, 'pos':pos}
     return render(request, 'post.html',context)
 
-def maps_view(request):
-    
-    form=MapForm()
-    if request.method=='POST':
-        form=MapForm(request.POST)
+@allowed_users(allowed_roles=['Farmer'])
+def updatepost(request, id):
+    pos = Post.objects.get(pk=id)
+    form = PostForm(request.POST or None, instance= pos)
     if form.is_valid():
         form.save()
-        return redirect('map') 
+        return redirect('post')
+    context={'pos':pos,'form':form}
+    return render(request, "updatepost.html", context)
+
+def deletePost(request, post_id):
+    pos = Post.objects.get(pk=post_id)
+    pos.delete()
+    return redirect('post')
+
+def maps_viewfarmer(request):
+    user = request.user
+    farmer = Farmer.objects.get(user = user)
+    form=MapFormFarmer()
+    if request.method=='POST':
+        form=MapFormFarmer(request.POST, instance=farmer)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.latitude = request.POST.get('latitude')
+        instance.longitude = request.POST.get('longitude')
+        instance.save()
+        return redirect('home') 
        
-    return render(request,'map.html', {'google_api_key': settings.GOOGLE_API_KEY})
+    return render(request,'mapfarmer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
-# # data= pd.read_sql[   
-# #         'default': {
-# #         'ENGINE': 'django.db.backends.mysql',
-# #         'NAME': 'farm_db',
-# #         'USER': 'root',
-# #         'PASSWORD': '',
-# #         'PORT': 3306,
-# #         'HOST': '127.0.0.1',
-# #     }]
-# db_connection='mysql+pymysql://root@127.0.0.1:3306/farm_db'
-# conn=create_engine(db_connection)
-# df=pd.read_sql("select user_id,price from accounts_product",conn)
-# print(data.columns)
-
-# newD = data[['farmer_id', ' products']]
-# print(newD)
-# newD= newD.set_index('farmer_id')
-
-# inertias = []
-
-# for i in range(1,11):
-#     kmeans = KMeans(n_clusters=i)
-#     kmeans.fit(df)
-#     inertias.append(kmeans.inertia_)
-
-# plt.plot(range(1,11), inertias, marker='o')
-# plt.title('Elbow method')
-# plt.xlabel('Number of clusters')
-# plt.ylabel('Inertia')
-# plt.show()
-
-# kmeans = KMeans(n_clusters=2)
-# kmeans.fit(df)
-
-# plt.scatter(x, y, c=kmeans.labels_)
-# plt.show()
-
-# cost = []
-# K = range(1,9)
-# for num_clusters in list(K):
-#      kmode = KModes(n_clusters=num_clusters, init = "random", n_init = 20, verbose=1)
-#      kmode.fit_predict(D_T_FMT)
-#      cost.append(kmode.cost_)
+def maps_viewcustomer(request):
     
-# plt.plot(K, cost, 'bx-')
-# plt.xlabel('No. of clusters')
-# plt.ylabel('Cost')
-# plt.title('Elbow Method For Optimal k')
-# plt.show()
+    form=MapFormCustomer()
+    if request.method=='POST':
+        form=MapFormCustomer(request.POST)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.user = request.user
+        instance.latitude = request.POST.get('latitude')
+        instance.longitude = request.POST.get('longitude')
+        instance.save()
+        return redirect('home') 
+    return render(request,'mapcustomer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
-# kmode = KModes(n_clusters=9, init = "random", n_init = 20, verbose=1)
-# clusters = kmode.fit_predict(df)
-# print(clusters)
+def connect(request,id):
+    farmer=Farmer.objects.get(pk=id)
+    Connection.objects.create(farmer=farmer, customer=request.user)
+    return redirect('home')
 
-# df.insert(0, "Cluster", clusters, True)
-# print (df)
+def connectionpage(request):
+    conn= Connection.objects.all()
+    return render(request, 'connection.html',{'conn':conn})
+def postpage(request):
+    entries=Post.objects.all()
+    return render(request, 'farmerpost.html',{'entries':entries})
+
+
+def cluster(request):
+    sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
+    dbConnection= sqlEngine.connect()
+    frame  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
+    pd.set_option('display.expand_frame_repr', False)
+    
+    X= frame.iloc[:, [0,1,2]].values
+    y=range(1,9)
+    wcss=[]
+    for i in y:
+        kmeans = KMeans(n_clusters=i, init='k-means++', random_state=0)
+        kmeans=KMeans(n_clusters=3)
+        kmeans.fit(X)
+        wcss.append(kmeans.inertia_)
+    plt.plot(y,wcss)
+    plt.title('The Elbow Method')
+    plt.xlabel('no of clusters')
+    plt.ylabel('wcss')
+    plt.show()
+    
+    kmeansmodel = KMeans(n_clusters= 3, init='k-means++', random_state=0)
+    y_kmeans= kmeansmodel.fit_predict(X)
+    plt.scatter(X[y_kmeans == 0, 0], X[y_kmeans == 0, 1], s = 100, c = 'red', label = 'Cluster 1')
+    plt.scatter(X[y_kmeans == 1, 0], X[y_kmeans == 1, 1], s = 100, c = 'blue', label = 'Cluster 2')
+    plt.scatter(X[y_kmeans == 2, 0], X[y_kmeans == 2, 1], s = 100, c = 'green', label = 'Cluster 3')
+
+    plt.title('Clusters of farmers')
+    plt.xlabel('price')
+    plt.ylabel('latitude,longitude')
+    plt.legend()
+    plt.show()
+    
+    frame.insert(0,'cluster',y_kmeans,True)
+    
+    print(frame)
+    return redirect('home')
+

@@ -1,0 +1,20 @@
+{%extends 'base.html' %}
+
+{%load static %}
+
+{% block content%}
+
+
+    {% for Post in entries %}
+        <div class="card w-25">
+            <div class="card-body">
+                <h5 class="card-title">{{Post.title}}</h5>
+                <p class="card-text">{{Post.description}}</p>
+                <p class="card-text">{{Post.price}}</p>
+                <p class="card-text">{{Post.product}}</p>
+                <p class="card-text">{{Post.farmer}}</p>
+            </div>
+        </div>
+    {%endfor%}
+
+{%endblock%}

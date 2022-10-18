@@ -77,8 +77,8 @@
 	<div class="container h-100">
 		<div class="d-flex justify-content-center h-100">
 			<div class="user_card">
-				<p class="logo-icon">
-					<img src="{% static 'logo.png'%}" alt="homepage" style="height:150px; width:150px;" />
+				<p class="logo-icon d-flex justify-content-center">
+					<img src="{% static 'logo1.png'%}" alt="homepage" style="height:100px; width:100px;"/>
 				</p>
 				<div class="d-flex justify-content-center">
 					<h3 id="form-title">REGISTER ACCOUNT</h3>
@@ -86,7 +86,7 @@
 				<div class="d-flex justify-content-center form_container">
 
 					<form method="POST" action="">
-            {%csrf_token%}
+                        {%csrf_token%}
 						<div class="input-group mb-3">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -117,7 +117,12 @@
 							</div>
 							{{form.phone_number}}
 						</div>
-					
+						{% comment %} <div class="input-group mb-3">
+							<div class="input-group-append">
+								<span class="input-group-text"><i class="fas fa-user"></i></span>
+							</div>
+							{{form.customer_type}}
+						</div>  {% endcomment %}
 						<div class="input-group mb-2">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-key"></i></span>
@@ -131,13 +136,26 @@
 							{{form.password2}}
 						</div>
 						
-						<div class="form-check">
+						<div class="form-check" style="margin-left:25px">
 							{{form.is_customer}}
 							{% comment %} <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked> {% endcomment %}
 							<label class="form-check-label" for="flexCheckChecked">
 							  Customer
 							</label>
 						</div>
+						{% comment %} <div class="dropdown">
+							<button class="btn login_btn dropdown-toggle d-flex justify-content-center mt-3" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+							  Customer Type
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+							  <li><label class="dropdown-item" type="submit">Bulk</label>
+								{{customer_type}}
+							  </li>
+							  <li><label class="dropdown-item" type="submit">Retail</label>
+								{{customer_type}}
+							  </li>
+							</ul>
+						  </div> {% endcomment %}
 
 				   		<div class="d-flex justify-content-center mt-3 login_container">
 				 			<input class="btn login_btn" type="submit" value="Register Account">

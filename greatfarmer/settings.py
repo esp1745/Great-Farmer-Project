@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     
-    
-    
 ]
 
 
@@ -74,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'greatfarmer.wsgi.application'
-GOOGLE_API_KEY='AIzaSyChfcK6kfbgrOH9B5zXEokJGKz4FO8qC2g'
+GOOGLE_MAPS_API_KEY='AIzaSyChfcK6kfbgrOH9B5zXEokJGKz4FO8qC2g'
 BASE_COUNTRY='ZM'
 
 

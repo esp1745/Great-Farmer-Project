@@ -135,17 +135,14 @@
             
             color: #fff;
         }
+
+
     </style>
 </head>
 <body>
 
-    <form method="POST">
-        {%csrf_token%}
-        {{form}}
 
-    </form>
-
-    {% comment %} <div class="container d-flex justify-content-center mt-5">
+    <div class="container d-flex justify-content-center mt-5">
 
         <div class="card text-center mb-5">
 
@@ -153,15 +150,20 @@
                 <img src="https://i.imgur.com/hczKIze.jpg" width="50">
             </div> {% endcomment %}
 
-                {% comment %} <span class="dot"></span>
+             
 
-            <span class="name mb-1 fw-500">{{user.username}}</span> {% endcomment %}
-            {% comment %} <span class="name mb-1 fw-500">{{Product.product_name}}</span>
+            
+  
+            <span class="name mb-1 fw-500">{{farmer.user.username}}</span>
+            
+            {% comment %} <span class="name mb-1 fw-500">{{user.emal}}</span>
+            <span class="name mb-1 fw-500">{{user.phone_number}}</span>
             <small class="text-black-50 font-weight-bold">QP09AA9090</small> {% endcomment %}
 
 
 
-            {% comment %} <div class="location mt-4">
+
+            <div class="location mt-4">
 
                 <span class="d-block"><i class="fa fa-map-marker start"></i> <small class="text-truncate ml-2">Ganesha Road, preet vihar new delhi</small> </span>
 
@@ -169,18 +171,23 @@
                 
             </div>
 
-
+        <form method="POST" action=" {% url 'farmer' rate.id%}">
+            {% csrf_token %}
             <div class="rate bg-success py-3 text-white mt-3">
 
                 <h6 class="mb-0">Rate farmer</h6>
-
-                <div class="rating"> <input type="radio" name="rating" value="5" id="5"><label for="5">☆</label> <input type="radio" name="rating" value="4" id="4"><label for="4">☆</label> <input type="radio" name="rating" value="3" id="3"><label for="3">☆</label> <input type="radio" name="rating" value="2" id="2"><label for="2">☆</label> <input type="radio" name="rating" value="1" id="1"><label for="1">☆</label>
-                </div>
+                    <div class="rating">
+                        <input type="radio" name="rating" value="{{item.id}}" id="5"><label for="5">☆</label> 
+                        <input type="radio" name="rating" value="{{item.id}}" id="4"><label for="4">☆</label> 
+                        <input type="radio" name="rating" value="{{item.id}}" id="3"><label for="3">☆</label> 
+                        <input type="radio" name="rating" value="{{item.id}}" id="2"><label for="2">☆</label> 
+                        <input type="radio" name="rating" value="{{item.id}}" id="1"><label for="1">☆</label>
+                    </div>
 
 
                 <div class="buttons px-4 mt-0">
 
-                <button class="btn btn-warning btn-block rating-submit">Submit</button>
+                <button class="btn btn-warning btn-block rating-submit" type="submit">Submit</button>
                 
             </div>
 
@@ -191,21 +198,10 @@
 
 
             
-            
-        </div> {% endcomment %}
+        </form>    
+        </div>
         
 
 
-    {% comment %} </div>  {% endcomment %}
-{% comment %} <div class="container">
-    {%csrf_token%}
-    <span id="rateMe1"></span>
-  </div>
-  
-  <!-- rating.js file -->
-  <script src="{%static 'js/addons/rating.js'%}"></script>
 
-  (document).ready(function() {
-    ('#rateMe1').mdbRate();
-  }); {% endcomment %}
 </body>
