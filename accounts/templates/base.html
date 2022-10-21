@@ -109,12 +109,14 @@
                                 <span class="hide-menu">Connections</span>
                             </a>
                         </li>
+                        {%if user.is_farmer%}
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'post'%}"
                                 aria-expanded="false">
                                 <span class="hide-menu">Posts</span>
                             </a>
-                        </li>                
+                        </li> 
+                        {%endif%}               
                     </ul>
                 </nav>           
             </div>      

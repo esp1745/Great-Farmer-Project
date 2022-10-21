@@ -18,6 +18,7 @@ from django.contrib.auth.models import Group
 from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import QuerySet as Q
+# from .task import myTask
 
 import pandas as pd
 import numpy as np
@@ -34,6 +35,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import json
 import threading
 from django.conf import settings
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 
@@ -42,8 +44,6 @@ def register(request):
 
 def base(request):
     return render(request, '../templates/base.html')
-
-
 # @unauthenticated_user
 # @allowed_users(allowed_roles=['farmer'])
 
@@ -99,7 +99,7 @@ def customer_register(request):
                 login(request, new_user)
             
             user.is_customer = True
-            Customer.objects.create(user=user,customer_type=form.cleaned_data.get('customer_type'))
+            
             
             username = form.cleaned_data.get('username')
             group = Group.objects.get(name='Customer')
@@ -174,6 +174,7 @@ def product(request):
         instance=form.save(commit=False)
         instance.save()
         instance.farmer.add(farmer)
+        cluster(request)
         return redirect('product')     
     context = {'form':form, 'list':list}
     return render(request, 'product.html',context)
@@ -289,26 +290,22 @@ def cluster(request):
         kmeans=KMeans(n_clusters=3)
         kmeans.fit(X)
         wcss.append(kmeans.inertia_)
-    plt.plot(y,wcss)
-    plt.title('The Elbow Method')
-    plt.xlabel('no of clusters')
-    plt.ylabel('wcss')
-    plt.show()
+        
     
     kmeansmodel = KMeans(n_clusters= 3, init='k-means++', random_state=0)
     y_kmeans= kmeansmodel.fit_predict(X)
-    plt.scatter(X[y_kmeans == 0, 0], X[y_kmeans == 0, 1], s = 100, c = 'red', label = 'Cluster 1')
-    plt.scatter(X[y_kmeans == 1, 0], X[y_kmeans == 1, 1], s = 100, c = 'blue', label = 'Cluster 2')
-    plt.scatter(X[y_kmeans == 2, 0], X[y_kmeans == 2, 1], s = 100, c = 'green', label = 'Cluster 3')
-
-    plt.title('Clusters of farmers')
-    plt.xlabel('price')
-    plt.ylabel('latitude,longitude')
-    plt.legend()
-    plt.show()
-    
+   
+   
     frame.insert(0,'cluster',y_kmeans,True)
     
+    farmers = Farmer.objects.all()
+    m = len(farmers)
+    for i in range(m):
+        farmers[i].c = y_kmeans[i]
+        farmers[i].save()
+        # farmers = Farmer.objects.bulk_update(objs=farmers, fields=['c'], batch_size=m)
+        
+    # pr = Product.farmer
     print(frame)
     return redirect('home')
 

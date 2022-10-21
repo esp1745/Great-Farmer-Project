@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import celery
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
+    # 'celery',
+    # 'django_celery_beat',
+    
     
 ]
 
@@ -75,7 +79,13 @@ WSGI_APPLICATION = 'greatfarmer.wsgi.application'
 GOOGLE_MAPS_API_KEY='AIzaSyChfcK6kfbgrOH9B5zXEokJGKz4FO8qC2g'
 BASE_COUNTRY='ZM'
 
+# BROKER_URL = 'amqp://'
+# CELERY_ACCEPT_CONTENT = ['pickle']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
 
+# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+# CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 
 # Database

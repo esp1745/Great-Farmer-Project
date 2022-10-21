@@ -52,8 +52,10 @@
                         <th>Name</th>
                         <th>Price in kwacha</th>
                         <th>Date Created</th>
+                        {%if user.is_farmer%}
                         <th>Update</th>
                         <th>Remove</th>
+                        {%endif%}
                     
         
                     </tr>
@@ -64,9 +66,10 @@
                         <td>{{Product.product_name}}</td>
                         <td>{{Product.price}}</td>
                         <td>{{Product.date}}</td>
+                        {%if user.is_farmer%}
                         <td><a class="btn btn-sm btn-success" href="{% url 'updatepage' Product.id %}">Update</a></td>
                         <td><a class="btn btn-sm btn-danger" href="{% url 'delete_product' Product.id %}">Delete</a></td>
-                        
+                        {%endif%}
                     
                     </tr> 
                     {% endfor %}
