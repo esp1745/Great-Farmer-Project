@@ -1,8 +1,9 @@
+from dataclasses import field
 from typing_extensions import Required
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
-from .models import Post, User, Product,Farmer,Customer,RATE_CHOICE
+from .models import Post,User, Product,Farmer,Customer
 from django import forms
 from django.core.validators import RegexValidator
 from django_google_maps import widgets as map_widgets
@@ -49,10 +50,10 @@ class productsForm(ModelForm):
         
 class RateForm(forms.ModelForm):
     # rate = forms.ChoiceField(choices=RATE_CHOICE, widget=forms.Select(),required=True)
-    # user = forms.
+    # farmer = form
     class Meta:
-        model =Farmer
-        fields = ['rate','user']
+        model = Farmer
+        fields = ['rate']
         
 class PostForm(ModelForm):
     class Meta:
@@ -92,3 +93,16 @@ class MapFormCustomer(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['latitude'].widget.attrs.update({'type':'number', 'class':'form-control','name':'latitude' , 'id':'recipient-name'})
         self.fields['longitude'].widget.attrs.update({'type':'number', 'class':'form-control','name':'latitude', 'id':'recipient-name'})
+
+
+class UserProfile(ModelForm):
+    class Meta:
+        model=User
+        fields=['first_name','last_name','email','phone_number']
+    
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['first_name'].widget.attrs.update({'type':'text', 'class':'form-control', 'id':'recipient-name','name':'first_name'})
+            self.fields['last_name'].widget.attrs.update({'type':'text', 'class':'form-control','name':'last_name', 'id':'recipient-name'})
+            self.fields['email'].widget.attrs.update({'type':'email', 'class':'form-control','name':'email', 'id':'recipient-name'})
+            self.fields['phone_number'].widget.attrs.update({'type':'text', 'class':'form-control','name':'phone_number', 'id':'recipient-name'})

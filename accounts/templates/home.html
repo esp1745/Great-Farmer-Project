@@ -124,7 +124,13 @@
                                 <span class="hide-menu">Dashboard</span>
                             </a>
                         </li>
-                        
+                        <li class="sidebar-item">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'profile' user.id %}"
+                                aria-expanded="false">
+                                {% comment %} <i class="fa fa-font" aria-hidden="true"></i> {% endcomment %}
+                                <span class="hide-menu">Profile</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'product'%}"
                                 aria-expanded="false">
@@ -416,9 +422,10 @@
                             </div>
                             <table class="table table-sm">
                                 <tr>
-                                    <th>Farmer Nmae</th>
+                                    <th>Farmer Username</th>
                                     <th>Email</th>
                                     <th>Phone number</th>
+                                    <th>Rating/5</th>
                                     <th>Rate Farmer</th>
                                     <th>Connect to Farmer</th>
                                 
@@ -430,6 +437,7 @@
                                     <td>{{Farmer.user.username}}</td>
                                     <td>{{Farmer.user.email}}</td>
                                     <td>{{Farmer.user.phone_number}}</td>
+                                    <td>{{rate}}</td>
                                     <td><a class="btn btn-sm btn-success" href="{% url 'farmer' Farmer.id %}">Rate</a></td>
                                     <td><a class="btn btn-sm btn-success" href="{% url 'connect' Farmer.id %}">Connect</a></td>
                                 </tr> 

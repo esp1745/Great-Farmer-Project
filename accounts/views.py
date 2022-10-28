@@ -5,8 +5,8 @@ from unicodedata import name
 from urllib import request
 from django.shortcuts import render, redirect
 from django.views.generic import  CreateView
-from .models import Connection, Post, User, RATE_CHOICE 
-from .form import FarmerSignUpForm, CustomerSignUpForm, MapFormCustomer, MapFormFarmer,productsForm,PostForm, RateForm
+from .models import Connection, Post, User
+from .form import FarmerSignUpForm, CustomerSignUpForm, MapFormCustomer, MapFormFarmer,productsForm,PostForm, RateForm,UserProfile
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
 from .models import Product,Customer,Farmer
@@ -145,21 +145,20 @@ def logoutUser(request):
     logout(request)
     return redirect('loginpage')
 
+
 def farmer(request,id):
     form=RateForm()
-    rate=Farmer.objects.get(pk=id)
+    farmer = Farmer.objects.get(pk=id)
     if request.method == 'POST':
-        # take care of instance
-        form = RateForm(request.POST, instance=rate)
+        form = RateForm(request.POST or None, instance = farmer)
         if form.is_valid():
-            rate = form.save(commit=False)
-        # adding the user here.
-            rate.user = request.user
-            rate.save()
+            instance = form.save(commit=False)
+            # instance.rate = farmer.rate
+            # instance = farmer.user
+            instance.save()
             return redirect('home')
-    context={'form':form,'rate':rate}
-    return render(request, 'farmer.html', context)
-         
+    return render(request, 'farmer.html', {'farmer':farmer, 'form':form})
+      
 ## adding a product
 # @allowed_users(allowed_roles=['Farmer'])
 def product(request):
@@ -274,6 +273,16 @@ def connectionpage(request):
 def postpage(request):
     entries=Post.objects.all()
     return render(request, 'farmerpost.html',{'entries':entries})
+
+def profile(request,id):
+    id=request.user.id
+    user=User.objects.get(pk=id)
+    form=UserProfile(request.POST or None, instance=user)
+    if form.is_valid():
+        form.save()
+        return redirect('home')
+    return render(request,'profile.html',{'form':form})
+    
 
 
 def cluster(request):

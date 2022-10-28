@@ -1,4 +1,6 @@
 from email.policy import default
+from random import choices
+from secrets import choice
 from tkinter import CASCADE
 from turtle import title
 from urllib import request
@@ -29,18 +31,22 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
    
 
-RATE_CHOICE=[
-    (1,'1-trash'),
-    (2,'2-bad'),
-    (3,'3-ok'),
-    (4,'4-good'),
-    (5,'5-very good')
-]
+# RATE_CHOICE=[
+#     (1,'1-trash'),
+#     (2,'2-bad'),
+#     (3,'3-ok'),
+#     (4,'4-good'),
+#     (5,'5-very good')
+# ]
 
 
+# class Rate(models.Model):
+#     rate = models.CharField(max_length=2,default=0, null=True)
+#     def __str__(self):
+#          return self.rate
   
 class Farmer(models.Model):
-    rate = models.IntegerField(choices=RATE_CHOICE, default=0, null=True)
+    rate = models.IntegerField(default=0, null=True)
     latitude =models.CharField(max_length=100, null=True)
     longitude =models.CharField(max_length=100, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -48,7 +54,7 @@ class Farmer(models.Model):
     def __str__(self):
             return self.user.username
 
-    
+
 class Connection(models.Model):
     date_created=models.DateTimeField(auto_now_add=True, null=True)
     farmer=models.ForeignKey(Farmer,on_delete=models.CASCADE, default=True)

@@ -1,0 +1,33 @@
+
+{%extends 'base.html'%}
+{%load static%}
+{%block content%}
+
+    <div class="card w-50">
+        <div class="card-body">
+            <h5 class="card-title">Update User Information</h5>
+            <hr>
+            <form method="POST" action="">
+                {%csrf_token%}
+                <div class="mb-3">
+                <label for="recipient-name" class="form-label" type="text"></label>
+                {{form.first_name}}
+                </div>
+                <div class="mb-3">
+                    <label for="recipient-name" class="form-label" type="text"></label>
+                    {{form.last_name}}
+                </div>
+                <div class="mb-3">
+                    <label for="recipient-name" class="form-label" type="email"></label>
+                    {{form.email}}
+                </div>
+                <div class="mb-3">
+                    <label for="recipient-name" class="form-label" type="text"></label>
+                    {{form.phone_number}}
+                </div>
+                <button type="submit" class="btn btn-success btn-md">Submit</button>
+                <button type="cancel" class="btn btn-danger btn-md">Cancel</button>
+            </form>
+        </div>
+    </div>
+{%endblock%}
