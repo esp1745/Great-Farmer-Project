@@ -87,7 +87,7 @@ class MapFormCustomer(ModelForm):
     
     class Meta(UserCreationForm):
         model=Customer
-        fields=['latitude','longitude']
+        fields=['latitude','longitude','customer_price','customer_rating']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,3 +106,9 @@ class UserProfile(ModelForm):
             self.fields['last_name'].widget.attrs.update({'type':'text', 'class':'form-control','name':'last_name', 'id':'recipient-name'})
             self.fields['email'].widget.attrs.update({'type':'email', 'class':'form-control','name':'email', 'id':'recipient-name'})
             self.fields['phone_number'].widget.attrs.update({'type':'text', 'class':'form-control','name':'phone_number', 'id':'recipient-name'})
+
+
+# class CustomerProfile(ModelForm):
+#     class Meta:
+#         model=Customer
+#         fields=['customer_price','customer_rating']

@@ -249,7 +249,6 @@ def maps_viewfarmer(request):
     return render(request,'mapfarmer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
 def maps_viewcustomer(request):
-    
     form=MapFormCustomer()
     if request.method=='POST':
         form=MapFormCustomer(request.POST)
@@ -258,6 +257,8 @@ def maps_viewcustomer(request):
         instance.user = request.user
         instance.latitude = request.POST.get('latitude')
         instance.longitude = request.POST.get('longitude')
+        instance.customer_price = request.POST.get('customer_price')
+        instance.customer_rating = request.POST.get('customer_rating')
         instance.save()
         return redirect('home') 
     return render(request,'mapcustomer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
@@ -283,8 +284,6 @@ def profile(request,id):
         return redirect('home')
     return render(request,'profile.html',{'form':form})
     
-
-
 def cluster(request):
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()

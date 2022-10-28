@@ -25,6 +25,8 @@
                 {% csrf_token %}
                 <input class="mb-2 form-control" id="start" name="latitude" placeholder="Latitude...">                
                 <input class="mb-2 form-control" id="end" name="longitude" placeholder="Longitude..."> 
+                <input class="mb-2 form-control" type="number" min="0" id="customer_price" name="customer_price" placeholder="Expected Price"> 
+                <input class="mb-2 form-control" type="number" min="0" max="5" id="customer_rating" name="customer_rating" placeholder="Expected Rating"> 
                 <div>
                   <input class="btn btn-success" type="submit" value="Submit" onclick="calcRoute()">
                 </div>

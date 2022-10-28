@@ -25,14 +25,16 @@ class User(AbstractUser):
 
 
 class Customer(models.Model):
-    # customer_type = models.CharField(max_length=10)
     latitude =models.CharField(max_length=100, null=True)
     longitude =models.CharField(max_length=100, null=True)
+    customer_price=models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    customer_rating = models.IntegerField(default=0, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-   
+    
 
 # RATE_CHOICE=[
-#     (1,'1-trash'),
+#     (1,'1-
+# trash'),
 #     (2,'2-bad'),
 #     (3,'3-ok'),
 #     (4,'4-good'),
