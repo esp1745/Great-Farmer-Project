@@ -30,22 +30,8 @@ class Customer(models.Model):
     customer_price=models.DecimalField(max_digits=10, decimal_places=2, null=True)
     customer_rating = models.IntegerField(default=0, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    classificatoin= models.CharField(max_length=10,default=0)
     
-
-# RATE_CHOICE=[
-#     (1,'1-
-# trash'),
-#     (2,'2-bad'),
-#     (3,'3-ok'),
-#     (4,'4-good'),
-#     (5,'5-very good')
-# ]
-
-
-# class Rate(models.Model):
-#     rate = models.CharField(max_length=2,default=0, null=True)
-#     def __str__(self):
-#          return self.rate
   
 class Farmer(models.Model):
     rate = models.IntegerField(default=0, null=True)

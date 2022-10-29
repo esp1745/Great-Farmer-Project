@@ -1,3 +1,4 @@
+from cgi import print_directory
 from itertools import product
 from multiprocessing import context
 from typing_extensions import Self
@@ -35,6 +36,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import json
 import threading
 from django.conf import settings
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
@@ -144,7 +147,6 @@ def home(request):
 def logoutUser(request):
     logout(request)
     return redirect('loginpage')
-
 
 def farmer(request,id):
     form=RateForm()
@@ -260,6 +262,7 @@ def maps_viewcustomer(request):
         instance.customer_price = request.POST.get('customer_price')
         instance.customer_rating = request.POST.get('customer_rating')
         instance.save()
+        customer_class(request)
         return redirect('home') 
     return render(request,'mapcustomer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
@@ -287,8 +290,9 @@ def profile(request,id):
 def cluster(request):
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()
-    frame  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
+    frame  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude,accounts_farmer.rate FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
     pd.set_option('display.expand_frame_repr', False)
+     
     
     X= frame.iloc[:, [0,1,2]].values
     y=range(1,9)
@@ -309,11 +313,53 @@ def cluster(request):
     farmers = Farmer.objects.all()
     m = len(farmers)
     for i in range(m):
-        farmers[i].c = y_kmeans[i]
+        farmers[i].cluster = y_kmeans[i]
         farmers[i].save()
-        # farmers = Farmer.objects.bulk_update(objs=farmers, fields=['c'], batch_size=m)
         
-    # pr = Product.farmer
     print(frame)
     return redirect('home')
 
+def customer_class(request):
+    sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
+    dbConnection= sqlEngine.connect()
+    farmer  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude, accounts_farmer.rate FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
+    customer  = pd.read_sql("SELECT customer_price, latitude, longitude,customer_rating FROM accounts_customer",dbConnection);
+  
+    X= farmer.iloc[:, [0,1,2,3]].values
+    y=range(1,9)
+    wcss=[]
+    for i in y:
+        kmeans = KMeans(n_clusters=i, init='k-means++', random_state=0)
+        kmeans=KMeans(n_clusters=3)
+        kmeans.fit(X)
+        wcss.append(kmeans.inertia_)
+        
+    kmeansmodel = KMeans(n_clusters= 3, init='k-means++', random_state=0)
+    y_kmeans= kmeansmodel.fit_predict(X)
+    
+    model=KNeighborsClassifier(3)
+    model.fit(X,y_kmeans)
+    pred=model.predict(customer)
+
+    pred2 = pred.tolist()
+    customer.insert(0,'class',pred,True)
+    
+    listings = []
+    for i in pred2:
+        listings.append(pred2[i])
+
+    print('listings: ',listings)
+    
+    
+    customers= Customer.objects.all()
+    n = len(customers)
+    
+    for i in range(n):
+        customers[i].classificatoin = pred2[i]
+        customers[i].save()
+
+    print(y_kmeans)
+    print(pred)
+    print(pred2)
+    print(customer)
+    return redirect('home')  
