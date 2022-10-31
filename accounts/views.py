@@ -124,15 +124,26 @@ def loginpage(request):
         if user is not None:
             login(request, user)
             if user.is_authenticated and user.is_farmer:
-                return redirect('home') 
+                return redirect('farmerhome') 
             elif user.is_authenticated and user.is_customer:
                 return redirect('home')
-            return redirect('home')
+            return
         else:
             messages.info(request, 'username or password is incorrect')
         
     context={}
     return render(request, '../templates/login.html', context)
+
+def farmerhome(request):
+    user = request.user
+    farmers = Farmer.objects.get(user = user)
+    list = Product.objects.all()
+    pos=Post.objects.all() 
+    post=Connection.objects.all()
+    farm=Customer.objects.filter(classificatoin = farmers.cluster)
+    context={'list':list,'post':post,'pos':pos,'farm':farm}
+    return render(request, 'farmerhome.html', context )
+
 
 def home(request):
     user = request.user
@@ -180,7 +191,8 @@ def product(request):
         instance=form.save(commit=False)
         instance.save()
         instance.farmer.add(farmer)
-        cluster(request)
+        cluster()
+        customer_class()
         return redirect('product')     
     context = {'form':form, 'list':list}
     return render(request, 'product.html',context)
@@ -253,7 +265,7 @@ def maps_viewfarmer(request):
         instance.latitude = request.POST.get('latitude')
         instance.longitude = request.POST.get('longitude')
         instance.save()
-        return redirect('home') 
+        return redirect('farmerhome') 
        
     return render(request,'mapfarmer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
@@ -269,13 +281,13 @@ def maps_viewcustomer(request):
         instance.customer_price = request.POST.get('customer_price')
         instance.customer_rating = request.POST.get('customer_rating')
         instance.save()
-        customer_class(request)
+        customer_class()
         return redirect('home') 
     return render(request,'mapcustomer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
 def connect(request,id):
     farmer=Farmer.objects.get(pk=id)
-    Connection.objects.create(farmer=farmer, customer=request.user)
+    Connection.objects.get_or_create(farmer=farmer, customer=request.user)
     return redirect('home')
 
 def connectionpage(request):
@@ -295,7 +307,7 @@ def profile(request,id):
         return redirect('home')
     return render(request,'profile.html',{'form':form})
     
-def cluster(request):
+def cluster():
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()
     frame  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude,accounts_farmer.rate FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
@@ -325,9 +337,9 @@ def cluster(request):
         farmers[i].save()
         
     print(frame)
-    return redirect('home')
+   
 
-def customer_class(request):
+def customer_class():
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()
     farmer  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude, accounts_farmer.rate FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
@@ -370,4 +382,4 @@ def customer_class(request):
     print(pred)
     print(pred2)
     print(customer)
-    return redirect('home')  
+    
