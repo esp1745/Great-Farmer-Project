@@ -19,8 +19,6 @@ from django.contrib.auth.models import Group
 from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import QuerySet as Q
-# from .task import myTask
-
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
@@ -137,12 +135,19 @@ def loginpage(request):
     return render(request, '../templates/login.html', context)
 
 def home(request):
+    user = request.user
+    buyer = Customer.objects.get(user = user)
     list = Product.objects.all()
     pos=Post.objects.all() 
     post=Connection.objects.all()
-    farm=Farmer.objects.all()
+    farm=Farmer.objects.filter(cluster = buyer.classificatoin)
     context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'home.html', context )
+def all_farmers(request):
+    farm=Farmer.objects.all()
+    context={'farm':farm}
+    return render(request,'all_farmers.html',context)
+    
     
 def logoutUser(request):
     logout(request)
@@ -189,6 +194,7 @@ def updatepage(request, id):
         return redirect('product')
     context={'list':list,'form':form}
     return render(request, "update.html", context)
+
 @allowed_users(allowed_roles=['Farmer'])  
 def deleteProduct(request, product_id):
     list = Product.objects.get(pk=product_id)
@@ -203,6 +209,7 @@ def deletepage(request, id):
     
     context= {'list':list,'pos':pos}
     return render(request, 'delete.html',context)
+
 #post section
 def post(request):
     pos = Post.objects.all()
@@ -274,6 +281,7 @@ def connect(request,id):
 def connectionpage(request):
     conn= Connection.objects.all()
     return render(request, 'connection.html',{'conn':conn})
+
 def postpage(request):
     entries=Post.objects.all()
     return render(request, 'farmerpost.html',{'entries':entries})

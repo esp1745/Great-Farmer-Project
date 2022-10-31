@@ -155,6 +155,16 @@
                             </a>
                         </li>
                         {%endif%}
+
+                        {%if user.is_customer%}
+                        <li class="sidebar-item">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{% url 'all_farmers'%}"
+                                aria-expanded="false">
+                                {% comment %} <i class="fa fa-globe" aria-hidden="true"></i> {% endcomment %}
+                                <span class="hide-menu">Farmers</span>
+                            </a>
+                        </li>
+                        {%endif%}
                         
                         
                     </ul>

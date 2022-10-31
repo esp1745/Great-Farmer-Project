@@ -16,7 +16,6 @@ urlpatterns = [
     path('products/delete/<product_id>', views.deleteProduct, name = 'delete_product'),
     path('delete/<int:id>', views.deletepage),
     path('farmer/<int:id>/', views.farmer, name='farmer'),
-    # path('rate/<int:id>/', views.rate, name='rate'),
     path('farmer/add_connection/<int:id>/', views.connect, name='connect'),
     path('connection/', views.connectionpage, name='connection'),
     path('post/', views.post, name='post'),
@@ -27,5 +26,6 @@ urlpatterns = [
     path('map/farmer/', views.maps_viewfarmer, name="maps_farmer"),
     path('profile/<int:id>/', views.profile, name='profile'),
     path('cluster/', views.cluster, name="cluster"),
+    path('all_farmers/', views.all_farmers, name='all_farmers'),
     
 ]  

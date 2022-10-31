@@ -1,0 +1,92 @@
+{%extends 'base.html'%}
+
+{%load static%}
+
+{% block content %}
+<body>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-sm-12">
+        <div class="white-box">
+            <div class="d-md-flex mb-3">
+                <h3 class="box-title mb-0">All farmers</h3>
+            </div>
+            <div class="table-responsive">
+                <div> 
+                    {% comment %} {% if user.is_farmer%}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductsModal" data-bs-whatever="@mdo">Add Post</button>
+                    {% endif %} {% endcomment %}
+                </div><br>
+                
+                <div class="modal fade" id="addProductsModal" tabindex="-1" aria-labelledby="addProductsModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    {% comment %} <div class="modal-header">
+                        <h5 class="modal-title" id="addProductsModalLabel">Create Post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div> {% endcomment %}
+                    <div class="modal-body">
+                        <form method="post" action="">
+                            {% csrf_token %}
+
+                        <div class="mb-3">
+                                <label for="recipient-name" class="col-form-label">Title</label>
+                                {{form.title}}
+                                {% comment %} <input type="number" class="form-control" id="recipient-name" value=""> {% endcomment %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Description</label>
+                            {{form.description}}
+                            {% comment %} <input type="number" class="form-control" id="recipient-name" value=""> {% endcomment %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Price</label>
+                            {{form.price}}
+                            {% comment %} <input type="number" class="form-control" id="recipient-name" value=""> {% endcomment %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Product Name</label>
+                            {{form.product}}
+                             {% comment %} <input type="text" class="form-control" id="recipient-name" value="">  {% endcomment %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                        </form>
+                    </div>
+                    
+                    </div>
+                </div>
+                </div>
+                <table class="table table-sm">
+                    <tr>
+                        <th>Farmer Username</th>
+                        <th>Email</th>
+                        <th>Phone number</th>
+                        <th>Rating/5</th>
+                        <th>Rate Farmer</th>
+                        <th>Connect to Farmer</th>
+                    
+        
+                    </tr>
+   
+                    {% for Farmer in farm %}
+        
+                    <tr>
+                        <td>{{Farmer.user.username}}</td>
+                        <td>{{Farmer.user.email}}</td>
+                        <td>{{Farmer.user.phone_number}}</td>
+                        <td>{{Farmer.rate}}</td>
+                        <td><a class="btn btn-sm btn-success" href="{% url 'farmer' Farmer.id %}">Rate</a></td>
+                        <td><a class="btn btn-sm btn-success" href="{% url 'connect' Farmer.id %}">Connect</a></td>
+                    </tr><t 
+                    {% endfor %}
+    
+            
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
