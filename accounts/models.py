@@ -21,9 +21,6 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=100)
     phone_number= models.CharField(max_length=10)
 
-
-
-
 class Customer(models.Model):
     latitude =models.CharField(max_length=100, null=True)
     longitude =models.CharField(max_length=100, null=True)
@@ -31,8 +28,7 @@ class Customer(models.Model):
     customer_rating = models.IntegerField(default=0, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     classificatoin= models.CharField(max_length=10,default=0)
-    
-  
+     
 class Farmer(models.Model):
     rate = models.IntegerField(default=0, null=True)
     latitude =models.CharField(max_length=100, null=True)
@@ -42,17 +38,16 @@ class Farmer(models.Model):
     def __str__(self):
             return self.user.username
 
-
 class Connection(models.Model):
     date_created=models.DateTimeField(auto_now_add=True, null=True)
     farmer=models.ForeignKey(Farmer,on_delete=models.CASCADE, default=True)
-    customer=models.ForeignKey(User,on_delete=models.CASCADE, default=True)
+    customer=models.ForeignKey(Customer,on_delete=models.CASCADE, default=True)
 
 class Product(models.Model):   
     product_name = models.CharField(max_length=255, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    date= models.DateTimeField(auto_now_add=True, null=True)
-    farmer=models.ManyToManyField(Farmer, null=True)
+    date = models.DateTimeField(auto_now_add=True, null=True)
+    farmer = models.ManyToManyField(Farmer, null=True)
     
     class meta:
            db_table="accounts_Product"
@@ -64,7 +59,8 @@ class Post(models.Model):
     title=models.CharField(max_length=100, null=False)
     description=models.CharField(max_length=200,null=False)
     price=models.DecimalField(decimal_places=2, max_digits=10, null=False)
-    farmer=models.ForeignKey(User,on_delete=models.CASCADE, default=True)
-    product=models.ForeignKey(Product,on_delete=models.CASCADE, default=True)
+    product=models.CharField(max_length=200, null=True)
+    farmer=models.ForeignKey(Farmer,on_delete=models.CASCADE, default=True)
+    
     
 

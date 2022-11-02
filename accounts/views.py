@@ -140,7 +140,7 @@ def farmerhome(request):
     list = Product.objects.all()
     pos=Post.objects.all() 
     post=Connection.objects.all()
-    farm=Customer.objects.filter(classificatoin = farmers.cluster)
+    farm=Customer.objects.filter(classificatoin = farmers.cluster).order_by('-customer_rating')
     context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'farmerhome.html', context )
 
@@ -151,11 +151,11 @@ def home(request):
     list = Product.objects.all()
     pos=Post.objects.all() 
     post=Connection.objects.all()
-    farm=Farmer.objects.filter(cluster = buyer.classificatoin)
+    farm=Farmer.objects.filter(cluster = buyer.classificatoin).order_by('-rate')
     context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'home.html', context )
 def all_farmers(request):
-    farm=Farmer.objects.all()
+    farm=Farmer.objects.all().order_by('-rate')
     context={'farm':farm}
     return render(request,'all_farmers.html',context)
     
@@ -225,18 +225,18 @@ def deletepage(request, id):
 #post section
 def post(request):
     pos = Post.objects.all()
+    current_user = request.user
+    farmer = Farmer.objects.get(user = current_user)
     form = PostForm()
     if request.method == 'POST':
         form = PostForm(request.POST)
-    
     if form.is_valid():
-        
-        instance=form.save(commit=False)
-        instance.farmer=request.user
+        instance = form.save(commit=False)
+        instance.farmer = farmer
         instance.save()
-        
-        return redirect('post')     
-    context = {'form':form, 'pos':pos}
+        return redirect('post')
+    farm=Farmer.objects.all()     
+    context = {'form':form, 'pos':pos,'farm':farm}
     return render(request, 'post.html',context)
 
 @allowed_users(allowed_roles=['Farmer'])
@@ -287,7 +287,8 @@ def maps_viewcustomer(request):
 
 def connect(request,id):
     farmer=Farmer.objects.get(pk=id)
-    Connection.objects.get_or_create(farmer=farmer, customer=request.user)
+    customer = Customer.objects.get(user = request.user)
+    Connection.objects.get_or_create(farmer=farmer, customer=customer)
     return redirect('home')
 
 def connectionpage(request):
@@ -295,7 +296,8 @@ def connectionpage(request):
     return render(request, 'connection.html',{'conn':conn})
 
 def postpage(request):
-    entries=Post.objects.all()
+    customer = Customer.objects.get(user = request.user)
+    entries=Post.objects.filter(farmer__cluster = customer.classificatoin)
     return render(request, 'farmerpost.html',{'entries':entries})
 
 def profile(request,id):

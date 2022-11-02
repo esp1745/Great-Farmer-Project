@@ -60,7 +60,7 @@
         
                     <tr>
                         <td>{{connection.farmer.user.username}}</td>
-                        <td>{{connection.customer.username}}</td>
+                        <td>{{connection.customer.user.username}}</td>
                         <td>{{connection.date_created}}</td>
                         {% comment %} <td><a class="btn btn-sm btn-success" href="{% url 'updatepage' Product.id %}">Update</a></td>
                         <td><a class="btn btn-sm btn-danger" href="{% url 'delete_product' Product.id %}">Delete</a></td>
