@@ -38,8 +38,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-
-
 def register(request):
     return render(request, '../templates/register.html')
 
@@ -52,8 +50,6 @@ def farmer_register(request):
     form = FarmerSignUpForm()   
     if request.method == 'POST':
         form= FarmerSignUpForm(request.POST)
-        
-        
         if form.is_valid():
             usernam = form.cleaned_data.get('username') 
             password = form.cleaned_data.get('password1') 
@@ -61,19 +57,17 @@ def farmer_register(request):
             instance=form.save(commit=False)
             instance.user = request.user
             instance.save()
-            user = form.save()
+            messages.success(request,'Account created')
             
             new_user = authenticate(username=usernam, password=password)
             if new_user is not None:
                 login(request, new_user)
-            
+                
+            user = request.user
             user.is_farmer = True
             Farmer.objects.create(user=user)
-            username = form.cleaned_data.get('username')
             group= Group.objects.get(name='Farmer')
-            
             user.groups.add(group)
-            messages.success(request,'Account created' ''+ username)
             return redirect('maps_farmer')
     context={'form':form}
     return render(request, '../templates/farmer_register.html', context)
@@ -89,38 +83,31 @@ def customer_register(request):
          if form.is_valid():
             usernam = form.cleaned_data.get('username') 
             password = form.cleaned_data.get('password1') 
-            
             instance=form.save(commit=False)
             instance.user=request.user
             instance.save()
-            user = form.save()
             
             new_user = authenticate(username=usernam, password=password)
             if new_user is not None:
                 login(request, new_user)
             
+            user = request.user
             user.is_customer = True
-            
-            
-            username = form.cleaned_data.get('username')
             group = Group.objects.get(name='Customer')
-            
             user.groups.add(group)
-            messages.success(request,'Account created' ''+ username)
+            messages.success(request,'Account created')
             return redirect('maps_customer')
      context={'form':form}
      return render(request, '../templates/customer_register.html', context)
 
 # @allowed_users(allowed_roles=['farmer', 'customer'])
 def loginpage(request):
-    
     if request.method =='POST':
         username= request.POST.get('username')
         password= request.POST.get('password')
         
         user=authenticate(request, username=username, password=password)
 
-        
         if user is not None:
             login(request, user)
             if user.is_authenticated and user.is_farmer:
@@ -144,7 +131,6 @@ def farmerhome(request):
     context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'farmerhome.html', context )
 
-
 def home(request):
     user = request.user
     buyer = Customer.objects.get(user = user)
@@ -154,14 +140,15 @@ def home(request):
     farm=Farmer.objects.filter(cluster = buyer.classificatoin).order_by('-rate')
     context={'list':list,'post':post,'pos':pos,'farm':farm}
     return render(request, 'home.html', context )
+
 def all_farmers(request):
     farm=Farmer.objects.all().order_by('-rate')
     context={'farm':farm}
     return render(request,'all_farmers.html',context)
-    
-    
+       
 def logoutUser(request):
     logout(request)
+    messages.success(request, 'Logged Out Successfully')
     return redirect('loginpage')
 
 def farmer(request,id):
@@ -174,7 +161,10 @@ def farmer(request,id):
             # instance.rate = farmer.rate
             # instance = farmer.user
             instance.save()
+            messages.success(request, 'Farmer Rated Successfully')
             return redirect('home')
+        else:
+            messages.error(request, 'Error Rating Farmer')
     return render(request, 'farmer.html', {'farmer':farmer, 'form':form})
       
 ## adding a product
@@ -184,16 +174,18 @@ def product(request):
     form = productsForm()
     if request.method == 'POST':
         form = productsForm(request.POST)
-    
-    if form.is_valid():
-        current_user = request.user
-        farmer = Farmer.objects.get(user = current_user)
-        instance=form.save(commit=False)
-        instance.save()
-        instance.farmer.add(farmer)
-        cluster()
-        customer_class()
-        return redirect('product')     
+        if form.is_valid():
+            current_user = request.user
+            farmer = Farmer.objects.get(user = current_user)
+            instance=form.save(commit=False)
+            instance.save()
+            messages.success(request,'Product Added Successfully') 
+            instance.farmer.add(farmer)
+            cluster()
+            # customer_class()
+            return redirect('product') 
+        else:
+            messages.error(request,'Error Adding Product')     
     context = {'form':form, 'list':list}
     return render(request, 'product.html',context)
 
@@ -203,7 +195,10 @@ def updatepage(request, id):
     form = productsForm(request.POST or None, instance= list)
     if form.is_valid():
         form.save()
+        messages.success(request,'Product Updated Successfully')
         return redirect('product')
+    else:
+        messages.error(request, 'Error Updating Product')
     context={'list':list,'form':form}
     return render(request, "update.html", context)
 
@@ -211,6 +206,7 @@ def updatepage(request, id):
 def deleteProduct(request, product_id):
     list = Product.objects.get(pk=product_id)
     list.delete()
+    messages.success(request,'Deleted Successfully')
     return redirect('product')
 
 @allowed_users(allowed_roles=['Farmer'])
@@ -218,7 +214,7 @@ def deletepage(request, id):
     list = Product.objects.get(id=id)
     pos= Post.objects.get(id=id)
     list.delete()
-    
+    messages.success(request,'Deleted Successfully')
     context= {'list':list,'pos':pos}
     return render(request, 'delete.html',context)
 
@@ -230,11 +226,14 @@ def post(request):
     form = PostForm()
     if request.method == 'POST':
         form = PostForm(request.POST)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        instance.farmer = farmer
-        instance.save()
-        return redirect('post')
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.farmer = farmer
+            instance.save()
+            messages.success(request,'Post Added Successfully')
+            return redirect('post')
+        else:
+            messages.error(request,'Error Adding Post')
     farm=Farmer.objects.all()     
     context = {'form':form, 'pos':pos,'farm':farm}
     return render(request, 'post.html',context)
@@ -245,13 +244,17 @@ def updatepost(request, id):
     form = PostForm(request.POST or None, instance= pos)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Post Updated Successfully')
         return redirect('post')
+    else:
+        messages.error(request, 'Error Updating Post')
     context={'pos':pos,'form':form}
     return render(request, "updatepost.html", context)
 
 def deletePost(request, post_id):
     pos = Post.objects.get(pk=post_id)
     pos.delete()
+    messages.success(request,'Deleted Successfully')
     return redirect('post')
 
 def maps_viewfarmer(request):
@@ -260,35 +263,41 @@ def maps_viewfarmer(request):
     form=MapFormFarmer()
     if request.method=='POST':
         form=MapFormFarmer(request.POST, instance=farmer)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        instance.latitude = request.POST.get('latitude')
-        instance.longitude = request.POST.get('longitude')
-        instance.save()
-        return redirect('farmerhome') 
-       
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.latitude = request.POST.get('latitude')
+            instance.longitude = request.POST.get('longitude')
+            instance.save()
+            messages.success(request,'Information Added Successfully')
+            return redirect('farmerhome') 
+        else:
+            messages.error(request,'Error Submitting Information')    
     return render(request,'mapfarmer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
 def maps_viewcustomer(request):
     form=MapFormCustomer()
     if request.method=='POST':
         form=MapFormCustomer(request.POST)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        instance.user = request.user
-        instance.latitude = request.POST.get('latitude')
-        instance.longitude = request.POST.get('longitude')
-        instance.customer_price = request.POST.get('customer_price')
-        instance.customer_rating = request.POST.get('customer_rating')
-        instance.save()
-        customer_class()
-        return redirect('home') 
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.latitude = request.POST.get('latitude')
+            instance.longitude = request.POST.get('longitude')
+            instance.customer_price = request.POST.get('customer_price')
+            instance.customer_rating = request.POST.get('customer_rating')
+            instance.save()
+            messages.success(request,'Information Added Successfully')
+            cluster()
+            return redirect('home')
+        else:
+            messages.error(request,'Error Submitting Information') 
     return render(request,'mapcustomer.html', {'google_api_key': settings.GOOGLE_MAPS_API_KEY})
 
 def connect(request,id):
     farmer=Farmer.objects.get(pk=id)
     customer = Customer.objects.get(user = request.user)
     Connection.objects.get_or_create(farmer=farmer, customer=customer)
+    messages.success(request,'Connection Created Successfully') 
     return redirect('home')
 
 def connectionpage(request):
@@ -306,6 +315,7 @@ def profile(request,id):
     form=UserProfile(request.POST or None, instance=user)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Profile Updated Successfully')
         return redirect('home')
     return render(request,'profile.html',{'form':form})
     
@@ -313,10 +323,10 @@ def cluster():
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()
     frame  = pd.read_sql("select accounts_product.price,accounts_farmer.latitude, accounts_farmer.longitude,accounts_farmer.rate FROM accounts_product JOIN accounts_product_farmer ON accounts_product.id=accounts_product_farmer.product_id JOIN accounts_farmer ON accounts_farmer.id=accounts_product_farmer.farmer_id", dbConnection);
+    customer  = pd.read_sql("SELECT customer_price, latitude, longitude,customer_rating FROM accounts_customer",dbConnection);
     pd.set_option('display.expand_frame_repr', False)
-     
     
-    X= frame.iloc[:, [0,1,2]].values
+    X= frame.iloc[:, [0,1,2,3]].values
     y=range(1,9)
     wcss=[]
     for i in y:
@@ -325,22 +335,30 @@ def cluster():
         kmeans.fit(X)
         wcss.append(kmeans.inertia_)
         
-    
     kmeansmodel = KMeans(n_clusters= 3, init='k-means++', random_state=0)
     y_kmeans= kmeansmodel.fit_predict(X)
-   
-   
-    frame.insert(0,'cluster',y_kmeans,True)
+    
+    model=KNeighborsClassifier(3)
+    model.fit(X,y_kmeans)
     
     farmers = Farmer.objects.all()
     m = len(farmers)
+    
     for i in range(m):
         farmers[i].cluster = y_kmeans[i]
         farmers[i].save()
-        
-    print(frame)
-   
+    
+    pred=model.predict(customer)
 
+    pred2 = pred.tolist()
+    
+    customers= Customer.objects.all()
+    n = len(customers)
+    
+    for i in range(n):
+        customers[i].classificatoin = pred2[i]
+        customers[i].save()
+        
 def customer_class():
     sqlEngine= create_engine('mysql+pymysql://root:@127.0.0.1:3306/farm_db', pool_recycle=3600)
     dbConnection= sqlEngine.connect()
@@ -366,11 +384,11 @@ def customer_class():
     pred2 = pred.tolist()
     customer.insert(0,'class',pred,True)
     
-    listings = []
-    for i in pred2:
-        listings.append(pred2[i])
+    # listings = []
+    # for i in pred2:
+    #     listings.append(pred2[i])
 
-    print('listings: ',listings)
+    # print('listings: ',listings)
     
     
     customers= Customer.objects.all()

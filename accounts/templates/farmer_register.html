@@ -80,6 +80,7 @@
 				<p class="logo-icon d-flex justify-content-center">
 					<img src="{% static 'logo1.png'%}" alt="homepage" style="height:100px; width:100px;" />
 				</p>
+				{% include 'messages.html' %}
 				<div class="d-flex justify-content-center">
 					<h3 id="form-title">REGISTER ACCOUNT</h3>
 				</div>
@@ -87,31 +88,31 @@
 
 					<form method="POST" action="">
             {%csrf_token%}
-						<div class="input-group mb-3" placeholder="username">
+						<div class="input-group mb-2" placeholder="username">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
 							{{form.username}}
 						</div>
-                        <div class="input-group mb-3" placeholder="first name">
+                        <div class="input-group mb-2" placeholder="first name">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
 							{{form.first_name}}
 						</div>
-                        <div class="input-group mb-3" placeholder="last name">
+                        <div class="input-group mb-2" placeholder="last name">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
 							{{form.last_name}}
 						</div>
-			            <div class="input-group mb-3" placeholder="Email">
+			            <div class="input-group mb-2" placeholder="Email">
 							<div class="input-group-append"type='email'>
 								<span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
 							</div>
 							{{form.email}}
 						</div>
-                        <div class="input-group mb-3" placeholder="phone number">
+                        <div class="input-group mb-2" placeholder="phone number">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>

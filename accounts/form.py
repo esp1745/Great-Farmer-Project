@@ -100,12 +100,12 @@ class UserProfile(ModelForm):
         model=User
         fields=['first_name','last_name','email','phone_number']
     
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.fields['first_name'].widget.attrs.update({'type':'text', 'class':'form-control', 'id':'recipient-name','name':'first_name'})
-            self.fields['last_name'].widget.attrs.update({'type':'text', 'class':'form-control','name':'last_name', 'id':'recipient-name'})
-            self.fields['email'].widget.attrs.update({'type':'email', 'class':'form-control','name':'email', 'id':'recipient-name'})
-            self.fields['phone_number'].widget.attrs.update({'type':'text', 'class':'form-control','name':'phone_number', 'id':'recipient-name'})
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs.update({'type':'text', 'class':'form-control', 'id':'recipient-name','name':'first_name'})
+        self.fields['last_name'].widget.attrs.update({'type':'text', 'class':'form-control','name':'last_name', 'id':'recipient-name'})
+        self.fields['email'].widget.attrs.update({'type':'email', 'class':'form-control','name':'email', 'id':'recipient-name'})
+        self.fields['phone_number'].widget.attrs.update({'type':'text', 'class':'form-control','name':'phone_number', 'id':'recipient-name'})
 
 
 # class CustomerProfile(ModelForm):

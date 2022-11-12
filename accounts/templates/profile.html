@@ -2,7 +2,7 @@
 {%extends 'base.html'%}
 {%load static%}
 {%block content%}
-
+{% include 'messages.html' %}
     <div class="card w-50">
         <div class="card-body">
             <h5 class="card-title">Update User Information</h5>
@@ -10,19 +10,19 @@
             <form method="POST" action="">
                 {%csrf_token%}
                 <div class="mb-3">
-                <label for="recipient-name" class="form-label" type="text"></label>
-                {{form.first_name}}
+                    <label for="recipient-name" class="col-form-label">First Name</label>
+                    {{form.first_name}}
                 </div>
                 <div class="mb-3">
-                    <label for="recipient-name" class="form-label" type="text"></label>
+                    <label for="recipient-name" class="col-form-label">Last Name</label>
                     {{form.last_name}}
                 </div>
                 <div class="mb-3">
-                    <label for="recipient-name" class="form-label" type="email"></label>
+                    <label for="recipient-name" class="col-form-label">Email</label>
                     {{form.email}}
                 </div>
                 <div class="mb-3">
-                    <label for="recipient-name" class="form-label" type="text"></label>
+                    <label for="recipient-name" class="col-form-label">Phone Number</label>
                     {{form.phone_number}}
                 </div>
                 <button type="submit" class="btn btn-success btn-md">Submit</button>
